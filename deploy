@@ -1,0 +1,4 @@
+# /bin/bash
+
+sshpass -p "hadoop" scp -r out/artifacts/page_ranker_hadoop_jar/page-ranker-hadoop.jar hduser@167.205.35.25:~/luqman
+ 
