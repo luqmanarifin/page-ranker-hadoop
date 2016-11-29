@@ -3,7 +3,7 @@ package com.page_ranker;
 /**
  * Created by luqmanarifin on 29/11/16.
  */
-public class User {
+public class User implements Comparable<User> {
 
   private long id;
   private boolean isDummy;
@@ -47,5 +47,16 @@ public class User {
 
   public void setRank(double rank) {
     this.rank = rank;
+  }
+
+  @Override
+  public int compareTo(User other) {
+    if (this.id < other.id) {
+      return -1;
+    } else if (this.id > other.id) {
+      return 1;
+    } else {
+      return 0;
+    }
   }
 }
