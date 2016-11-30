@@ -1,125 +1,65 @@
 package com.page_ranker;
 
+import java.io.IOException;
+import java.util.StringTokenizer;
+
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Main {
-  private static final int ITERATION = 3;
-  private static final String PREFIX = "[luqman ganteng] ";
 
-  private static Configuration conf = new Configuration();
+  public static class TokenizerMapper
+    extends Mapper<Object, Text, User, User>{
 
-  public static String getRootDirectory() throws Exception {
-    FileSystem dfs = FileSystem.get(conf);
-    Path now = dfs.getHomeDirectory();
-    return (now.getParent().getParent()).toString();
-  }
+    private final static IntWritable one = new IntWritable(1);
+    private Text word = new Text();
 
-  public static String getMyDirectory() throws Exception {
-    FileSystem dfs = FileSystem.get(conf);
-    Path now = dfs.getHomeDirectory();
-    now = new Path(now.toString()).getParent();
-    return (new Path(now.toString() + "/luqman")).toString();
-  }
-
-  public static void cleanUp() throws Exception {
-    String basePath = getMyDirectory();
-    FileSystem dfs = FileSystem.get(conf);
-
-    for (int i = 0; i <= 3; i++) {
-      dfs.mkdirs(new Path(basePath + "/iteration" + i));
-      dfs.delete(new Path(basePath + "/iteration" + i + "/intermediate"), true);
-      dfs.delete(new Path(basePath + "/iteration" + i + "/output"), true);
+    public void map(Object key, Text value, Context context
+    ) throws IOException, InterruptedException {
+      StringTokenizer itr = new StringTokenizer(value.toString());
+      while (itr.hasMoreTokens()) {
+        word.set(itr.nextToken());
+        Long id = Long.parseLong(itr.nextToken());
+        User user1 = new User(id, false, 0, 0);
+        User user2 = new User(id, false, 0, 0);
+        context.write(user1, user2);
+      }
     }
-    dfs.delete(new Path(basePath + "/result"), true);
   }
 
-  public static void init() throws Exception {
-    Job job = Job.getInstance(conf, PREFIX + "init");
-    job.setJarByClass(Main.class);
-    job.setMapperClass(InitMapper.class);
-    job.setCombinerClass(InitReducer.class);
-    job.setReducerClass(InitReducer.class);
-    job.setMapOutputKeyClass(User.class);
-    job.setMapOutputValueClass(User.class);
-    job.setOutputKeyClass(User.class);
-    job.setOutputValueClass(User.class);
+  public static class IntSumReducer
+    extends Reducer<User,User,User,User> {
+    private IntWritable result = new IntWritable();
 
-    String inputPath = getRootDirectory() + "user/luqman/dummy"; //"user/twitter";
-    String outputPath = getMyDirectory() + "/iteration0/output";
-    System.out.println("twitter path: " + inputPath);
-    System.out.println("output path: " + outputPath);
-
-    FileInputFormat.addInputPath(job, new Path(inputPath));
-    FileOutputFormat.setOutputPath(job, new Path(outputPath));
-
-    job.waitForCompletion(true);
-  }
-
-  public static void calculate(int iteration) throws Exception {
-    Job job = Job.getInstance(conf, PREFIX + "calculate " + iteration);
-    job.setJarByClass(Main.class);
-    job.setMapperClass(CalculateMapper.class);
-    job.setCombinerClass(CalculateReducer.class);
-    job.setReducerClass(CalculateReducer.class);
-    job.setOutputKeyClass(User.class);
-    job.setOutputValueClass(User.class);
-
-    String inputPath = "";
-    String outputPath = "";
-    FileInputFormat.addInputPath(job, new Path(inputPath));
-    FileOutputFormat.setOutputPath(job, new Path(outputPath));
-
-    job.waitForCompletion(true);
-  }
-
-  public static void update(int iteration) throws Exception {
-    Job job = Job.getInstance(conf, PREFIX + "update " + iteration);
-    job.setJarByClass(Main.class);
-    job.setMapperClass(UpdateMapper.class);
-    job.setCombinerClass(UpdateReducer.class);
-    job.setReducerClass(UpdateReducer.class);
-    job.setOutputKeyClass(User.class);
-    job.setOutputValueClass(User.class);
-
-    String inputPath = "";
-    String outputPath = "";
-    FileInputFormat.addInputPath(job, new Path(inputPath));
-    FileOutputFormat.setOutputPath(job, new Path(outputPath));
-
-    job.waitForCompletion(true);
-  }
-
-  public static void finish() throws Exception {
-    Job job = Job.getInstance(conf, PREFIX + "finish");
-    job.setJarByClass(Main.class);
-    job.setMapperClass(FinishMapper.class);
-    job.setCombinerClass(FinishReducer.class);
-    job.setReducerClass(FinishReducer.class);
-    job.setOutputKeyClass(User.class);
-    job.setOutputValueClass(User.class);
-
-    String inputPath = "";
-    String outputPath = "";
-    FileInputFormat.addInputPath(job, new Path(inputPath));
-    FileOutputFormat.setOutputPath(job, new Path(outputPath));
-
-    job.waitForCompletion(true);
+    public void reduce(User key, Iterable<User> values,
+                       Context context
+    ) throws IOException, InterruptedException {
+      for (User val : values) {
+        User user1 = new User(val.getId().get(), false, 0, 0);
+        User user2 = new User(val.getId().get(), false, 0, 0);
+        context.write(user1, user2);
+      }
+    }
   }
 
   public static void main(String[] args) throws Exception {
-	  cleanUp();
-    init();
-	  /*
-    for (int i = 1; i <= ITERATION; i++) {
-      calculate(i);
-      update(i);
-    }
-    finish();
-    */
+    Configuration conf = new Configuration();
+    Job job = Job.getInstance(conf, "word count");
+    job.setJarByClass(Main.class);
+    job.setMapperClass(TokenizerMapper.class);
+    job.setCombinerClass(IntSumReducer.class);
+    job.setReducerClass(IntSumReducer.class);
+    job.setOutputKeyClass(User.class);
+    job.setOutputValueClass(User.class);
+    FileInputFormat.addInputPath(job, new Path(args[0]));
+    FileOutputFormat.setOutputPath(job, new Path(args[1]));
+    System.exit(job.waitForCompletion(true) ? 0 : 1);
   }
 }
