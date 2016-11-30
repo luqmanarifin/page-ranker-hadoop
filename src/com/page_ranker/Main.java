@@ -9,6 +9,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Main {
   private static final int ITERATION = 3;
+  private static final String PREFIX = "[luqman ganteng] ";
 
   private static Configuration conf = new Configuration();
 
@@ -38,15 +39,17 @@ public class Main {
   }
 
   public static void init() throws Exception {
-    Job job = Job.getInstance(conf, "init");
+    Job job = Job.getInstance(conf, PREFIX + "init");
     job.setJarByClass(Main.class);
     job.setMapperClass(InitMapper.class);
     job.setCombinerClass(InitReducer.class);
     job.setReducerClass(InitReducer.class);
+    job.setMapOutputKeyClass(User.class);
+    job.setMapOutputValueClass(User.class);
     job.setOutputKeyClass(User.class);
     job.setOutputValueClass(User.class);
 
-    String inputPath = getRootDirectory() + "user/twitter";
+    String inputPath = getRootDirectory() + "user/luqman/dummy"; //"user/twitter";
     String outputPath = getMyDirectory() + "/iteration0/output";
     System.out.println("twitter path: " + inputPath);
     System.out.println("output path: " + outputPath);
@@ -58,7 +61,7 @@ public class Main {
   }
 
   public static void calculate(int iteration) throws Exception {
-    Job job = Job.getInstance(conf, "calculate " + iteration);
+    Job job = Job.getInstance(conf, PREFIX + "calculate " + iteration);
     job.setJarByClass(Main.class);
     job.setMapperClass(CalculateMapper.class);
     job.setCombinerClass(CalculateReducer.class);
@@ -75,7 +78,7 @@ public class Main {
   }
 
   public static void update(int iteration) throws Exception {
-    Job job = Job.getInstance(conf, "update " + iteration);
+    Job job = Job.getInstance(conf, PREFIX + "update " + iteration);
     job.setJarByClass(Main.class);
     job.setMapperClass(UpdateMapper.class);
     job.setCombinerClass(UpdateReducer.class);
@@ -92,7 +95,7 @@ public class Main {
   }
 
   public static void finish() throws Exception {
-    Job job = Job.getInstance(conf, "finish");
+    Job job = Job.getInstance(conf, PREFIX + "finish");
     job.setJarByClass(Main.class);
     job.setMapperClass(FinishMapper.class);
     job.setCombinerClass(FinishReducer.class);

@@ -74,9 +74,9 @@ public class User implements WritableComparable<User> {
 
   @Override
   public void write(DataOutput out) throws IOException {
-    id.write(out);
-    following.write(out);
-    rank.write(out);
+    out.writeLong(id.get());
+    out.writeLong(following.get());
+    out.writeDouble(rank.get());
   }
 
   @Override
@@ -96,6 +96,11 @@ public class User implements WritableComparable<User> {
     } else {
       return 0;
     }
+  }
+
+  @Override
+  public String toString() {
+    return id + "\t" + following + "\t" + rank;
   }
 
   @Override
