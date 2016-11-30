@@ -74,16 +74,16 @@ public class User implements WritableComparable<User> {
 
   @Override
   public void write(DataOutput out) throws IOException {
-    out.writeLong(id.get());
-    out.writeLong(following.get());
-    out.writeDouble(rank.get());
+    id.write(out);
+    following.write(out);
+    rank.write(out);
   }
 
   @Override
   public void readFields(DataInput in) throws IOException {
-    id.set(in.readLong());
-    following.set(in.readLong());
-    rank.set(in.readDouble());
+    id.readFields(in);
+    following.readFields(in);
+    rank.readFields(in);
     isDummy.set(false);
   }
 
@@ -96,5 +96,14 @@ public class User implements WritableComparable<User> {
     } else {
       return 0;
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof User) {
+      User other = (User) o;
+      return other.getId().get() == this.getId().get();
+    }
+    return false;
   }
 }
