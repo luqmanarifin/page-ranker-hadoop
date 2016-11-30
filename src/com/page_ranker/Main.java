@@ -5,6 +5,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Main {
   private static final int ITERATION = 3;
@@ -45,28 +46,77 @@ public class Main {
     job.setOutputKeyClass(User.class);
     job.setOutputValueClass(User.class);
 
-    FileInputFormat.addInputPath(job, new Path(getRootDirectory() + "/user/twitter/twitter_rv.net"));
+    String inputPath = getRootDirectory() + "user/twitter";
+    String outputPath = getMyDirectory() + "/iteration0/output";
+    System.out.println("twitter path: " + inputPath);
+    System.out.println("output path: " + outputPath);
+
+    FileInputFormat.addInputPath(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
+
+    job.waitForCompletion(true);
   }
 
-  public static void calculate(int iteration) {
+  public static void calculate(int iteration) throws Exception {
+    Job job = Job.getInstance(conf, "calculate " + iteration);
+    job.setJarByClass(Main.class);
+    job.setMapperClass(CalculateMapper.class);
+    job.setCombinerClass(CalculateReducer.class);
+    job.setReducerClass(CalculateReducer.class);
+    job.setOutputKeyClass(User.class);
+    job.setOutputValueClass(User.class);
 
+    String inputPath = "";
+    String outputPath = "";
+    FileInputFormat.addInputPath(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
+
+    job.waitForCompletion(true);
   }
 
-  public static void update(int iteration) {
+  public static void update(int iteration) throws Exception {
+    Job job = Job.getInstance(conf, "update " + iteration);
+    job.setJarByClass(Main.class);
+    job.setMapperClass(UpdateMapper.class);
+    job.setCombinerClass(UpdateReducer.class);
+    job.setReducerClass(UpdateReducer.class);
+    job.setOutputKeyClass(User.class);
+    job.setOutputValueClass(User.class);
 
+    String inputPath = "";
+    String outputPath = "";
+    FileInputFormat.addInputPath(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
+
+    job.waitForCompletion(true);
   }
 
-  public static void finish() {
+  public static void finish() throws Exception {
+    Job job = Job.getInstance(conf, "finish");
+    job.setJarByClass(Main.class);
+    job.setMapperClass(FinishMapper.class);
+    job.setCombinerClass(FinishReducer.class);
+    job.setReducerClass(FinishReducer.class);
+    job.setOutputKeyClass(User.class);
+    job.setOutputValueClass(User.class);
 
+    String inputPath = "";
+    String outputPath = "";
+    FileInputFormat.addInputPath(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
+
+    job.waitForCompletion(true);
   }
 
   public static void main(String[] args) throws Exception {
 	  cleanUp();
     init();
-	  for (int i = 1; i <= ITERATION; i++) {
+	  /*
+    for (int i = 1; i <= ITERATION; i++) {
       calculate(i);
       update(i);
     }
     finish();
+    */
   }
 }
