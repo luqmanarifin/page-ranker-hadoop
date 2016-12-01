@@ -8,6 +8,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +43,6 @@ public class Main {
   }
 
   public static void init() throws Exception {
-    Configuration conf = new Configuration();
     Job job = Job.getInstance(conf, PREFIX + "init");
     job.setJarByClass(Main.class);
     job.setMapperClass(InitMapper.class);
@@ -61,8 +61,21 @@ public class Main {
     job.waitForCompletion(true);
   }
 
-  public static void iterate(int iteration) {
+  public static void iterate(int iteration) throws Exception {
+    Job job = Job.getInstance(conf, PREFIX + "iterasi " + iteration);
+    job.setJarByClass(Main.class);
+    job.setMapperClass(IterateMapper.class);
+    job.setCombinerClass(IterateReducer.class);
+    job.setReducerClass(IterateReducer.class);
+    job.setOutputKeyClass(LongWritable.class);
+    job.setOutputValueClass(Attribute.class);
 
+    String inputPath = getMyDirectory() + "/iteration" + (iteration - 1) + "/output";
+    String outputPath = getMyDirectory() + "/iteration" + (iteration) + "/output";
+    FileInputFormat.addInputPath(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
+
+    job.waitForCompletion(true);
   }
 
   public static void finish() {
@@ -70,32 +83,12 @@ public class Main {
   }
 
   public static void main(String[] args) throws Exception {
-    List<LongWritable> cok = new ArrayList<>();
-    cok.add(new LongWritable(1));
-    cok.add(new LongWritable(2));
-    String lol = cok.toString();
-    List<Long> followees = new ArrayList<>();
-    String temp = lol;
-    temp = temp.replace("[", "");
-    temp = temp.replace("]", "");
-    String[] parsed = temp.split(",");
-    for (int i = 0; i < parsed.length; i++) {
-      System.out.println("cok" + parsed[i].trim() + "lol");
-      try {
-        followees.add(Long.parseLong(parsed[i].trim()));
-      } catch (Exception e) {
-
-      }
-    }
-
-    System.out.println(cok.toString());
     cleanUp();
     init();
-
-    /*
     for (int i = 1; i <= ITERATION; i++) {
       iterate(i);
     }
+    /*
     finish();
     */
   }

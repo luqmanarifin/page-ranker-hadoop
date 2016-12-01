@@ -29,6 +29,10 @@ public class Attribute implements Writable {
     this.pageRank = new DoubleWritable(pageRank);
   }
 
+  public Text getFollowee() {
+    return followee;
+  }
+
   public List<LongWritable> getFollowing() {
     List<LongWritable> followees = new ArrayList<>();
     String temp = this.followee.toString();
@@ -41,6 +45,10 @@ public class Attribute implements Writable {
       }
     }
     return followees;
+  }
+
+  public long getSize() {
+    return getFollowing().size();
   }
 
   public double getPageRank() {
