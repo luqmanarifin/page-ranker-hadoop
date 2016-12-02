@@ -46,12 +46,13 @@ public class Main {
     job.setOutputKeyClass(LongWritable.class);
     job.setOutputValueClass(Attribute.class);
 
-    String inputPath = getRootDirectory() + "user/tifani/dummy-2";
+    String inputPath = getRootDirectory() + "user/twitter";
     String outputPath = getMyDirectory() + "/iteration0/output";
     System.out.println("twitter path: " + inputPath);
     System.out.println("output path: " + outputPath);
     FileInputFormat.addInputPath(job, new Path(inputPath));
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    job.setNumReduceTasks(8);
 
     job.waitForCompletion(true);
   }
@@ -68,6 +69,7 @@ public class Main {
     String outputPath = getMyDirectory() + "/iteration" + (iteration) + "/output";
     FileInputFormat.addInputPath(job, new Path(inputPath));
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    job.setNumReduceTasks(8);
 
     job.waitForCompletion(true);
   }
@@ -76,7 +78,6 @@ public class Main {
     Job job = Job.getInstance(conf, PREFIX + "finishing ");
     job.setJarByClass(Main.class);
     job.setMapperClass(FinishMapper.class);
-    job.setCombinerClass(FinishReducer.class);
     job.setReducerClass(FinishReducer.class);
     job.setOutputKeyClass(LongWritable.class);
     job.setOutputValueClass(Attribute.class);
@@ -85,6 +86,7 @@ public class Main {
     String outputPath = getMyDirectory() + "/result";
     FileInputFormat.addInputPath(job, new Path(inputPath));
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    job.setNumReduceTasks(8);
 
     job.waitForCompletion(true);
   }
