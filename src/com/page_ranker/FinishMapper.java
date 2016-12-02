@@ -5,7 +5,6 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.StringTokenizer;
 
 /**
@@ -17,9 +16,7 @@ public class FinishMapper extends Mapper<Object, Text, LongWritable, Attribute> 
   protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
     StringTokenizer itr = new StringTokenizer(value.toString());
     long id = Long.parseLong(itr.nextToken());
-    float pageRank = Float.parseFloat(itr.nextToken());
-
-    System.out.println(id + " " + pageRank);
+    double pageRank = Double.parseDouble(itr.nextToken());
 
     Attribute attribute1 = new Attribute(id + "", pageRank);
     context.write(new LongWritable(1), attribute1);

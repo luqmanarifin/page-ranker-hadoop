@@ -42,12 +42,11 @@ public class Main {
     Job job = Job.getInstance(conf, PREFIX + "init");
     job.setJarByClass(Main.class);
     job.setMapperClass(InitMapper.class);
-    job.setCombinerClass(InitReducer.class);
     job.setReducerClass(InitReducer.class);
     job.setOutputKeyClass(LongWritable.class);
     job.setOutputValueClass(Attribute.class);
 
-    String inputPath = getRootDirectory() + "user/luqman/dummy"; //"user/twitter";
+    String inputPath = getRootDirectory() + "user/tifani/dummy-2";
     String outputPath = getMyDirectory() + "/iteration0/output";
     System.out.println("twitter path: " + inputPath);
     System.out.println("output path: " + outputPath);
@@ -61,7 +60,6 @@ public class Main {
     Job job = Job.getInstance(conf, PREFIX + "iterasi " + iteration);
     job.setJarByClass(Main.class);
     job.setMapperClass(IterateMapper.class);
-    job.setCombinerClass(IterateReducer.class);
     job.setReducerClass(IterateReducer.class);
     job.setOutputKeyClass(LongWritable.class);
     job.setOutputValueClass(Attribute.class);
@@ -77,9 +75,9 @@ public class Main {
   public static void finish() throws Exception {
     Job job = Job.getInstance(conf, PREFIX + "finishing ");
     job.setJarByClass(Main.class);
-    job.setMapperClass(IterateMapper.class);
-    job.setCombinerClass(IterateReducer.class);
-    job.setReducerClass(IterateReducer.class);
+    job.setMapperClass(FinishMapper.class);
+    job.setCombinerClass(FinishReducer.class);
+    job.setReducerClass(FinishReducer.class);
     job.setOutputKeyClass(LongWritable.class);
     job.setOutputValueClass(Attribute.class);
 
@@ -91,13 +89,9 @@ public class Main {
     job.waitForCompletion(true);
   }
 
-  public static void main(String[] args) throws Exception {
-    double sum = 0;
-    double ans = 0.15 + 0.85 * sum;
-    System.out.println(ans);
+  public static void main(String[] args) throws Exception {;
     cleanUp();
     init();
-
     for (int i = 1; i <= ITERATION; i++) {
       iterate(i);
     }

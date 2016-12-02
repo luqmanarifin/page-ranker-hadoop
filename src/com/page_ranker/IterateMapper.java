@@ -5,6 +5,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -17,14 +18,16 @@ public class IterateMapper extends Mapper<Object, Text, LongWritable, Attribute>
   protected void map(Object key, Text value, Context context) throws IOException, InterruptedException {
     StringTokenizer itr = new StringTokenizer(value.toString());
     long id = Long.parseLong(itr.nextToken());
-    float pageRank = Float.parseFloat(itr.nextToken());
-    Attribute attribute = new Attribute(itr.nextToken(), pageRank);
-    List<LongWritable> followees = attribute.getFollowing();
-
-    System.out.println(id + " " + pageRank + " " + followees.toString());
+    double pageRank = Double.parseDouble(itr.nextToken());
+    List<LongWritable> followees = new ArrayList<>();
+    Attribute attribute = new Attribute();
+    if (itr.hasMoreTokens()) {
+      attribute = new Attribute(itr.nextToken(), pageRank);
+      followees = attribute.getFollowing();
+    }
 
     long n = followees.size();
-    float addedPageRank = pageRank / (float) n;
+    double addedPageRank = (n > 0? pageRank / (double) n : 0);
     for (LongWritable idFollowee : followees) {
       Attribute attribute2 = new Attribute("", addedPageRank);
       context.write(new LongWritable(idFollowee.get()), attribute2);

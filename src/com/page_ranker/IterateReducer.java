@@ -1,6 +1,5 @@
 package com.page_ranker;
 
-import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -12,6 +11,8 @@ import java.util.List;
  * Created by luqmanarifin on 01/12/16.
  */
 public class IterateReducer extends Reducer<LongWritable, Attribute, LongWritable, Attribute> {
+
+  private static final double D = 0.85F;
 
   @Override
   protected void reduce(LongWritable key, Iterable<Attribute> values, Context context) throws IOException, InterruptedException {
@@ -25,7 +26,8 @@ public class IterateReducer extends Reducer<LongWritable, Attribute, LongWritabl
       }
       sum += attribute.getPageRank();
     }
-    Attribute attribute1 = new Attribute(text.toString(), 0.15 + 0.85 * sum);
+    double pageRank = D * sum + (1 - D);
+    Attribute attribute1 = new Attribute(text.toString(), pageRank);
     context.write(new LongWritable(key.get()), attribute1);
   }
 }

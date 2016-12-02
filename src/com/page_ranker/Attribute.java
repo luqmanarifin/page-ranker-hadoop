@@ -17,21 +17,21 @@ import java.util.List;
 public class Attribute implements Writable {
 
   private Text followee;
-  private DoubleWritable pageRank;
+  private Text pageRank;
 
   public Attribute() {
     followee = new Text();
-    pageRank = new DoubleWritable(0);
+    pageRank = new Text();
   }
 
   public Attribute(String param, double pageRank) {
     this.followee = new Text(param);
-    this.pageRank = new DoubleWritable(pageRank);
+    this.pageRank = new Text(Double.toString(pageRank));
   }
 
   public Attribute(Text param, DoubleWritable pageRank) {
     this.followee = param;
-    this.pageRank = pageRank;
+    this.pageRank = new Text(Double.toString(pageRank.get()));
   }
 
   public Text getFollowee() {
@@ -57,11 +57,11 @@ public class Attribute implements Writable {
   }
 
   public double getPageRank() {
-    return pageRank.get();
+    return Double.parseDouble(pageRank.toString());
   }
 
   public void setPageRank(double pageRank) {
-    this.pageRank = new DoubleWritable(pageRank);
+    this.pageRank = new Text(pageRank + "");
   }
 
   @Override
@@ -78,10 +78,7 @@ public class Attribute implements Writable {
 
   @Override
   public String toString() {
-    if (followee.getLength() == 0) {
-      followee = new Text(",");
-    }
-    return pageRank.get() + "\t" + followee.toString();
+    return pageRank.toString() + " " + followee.toString();
   }
 
   @Override
