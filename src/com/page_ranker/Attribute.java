@@ -17,16 +17,21 @@ import java.util.List;
 public class Attribute implements Writable {
 
   private Text followee;
-  private DoubleWritable pageRank;
+  private Text pageRank;
 
   public Attribute() {
     followee = new Text();
-    pageRank = new DoubleWritable(0);
+    pageRank = new Text();
   }
 
   public Attribute(String param, double pageRank) {
     this.followee = new Text(param);
-    this.pageRank = new DoubleWritable(pageRank);
+    this.pageRank = new Text(pageRank + "");
+  }
+
+  public Attribute(Text param, Text pageRank) {
+    this.followee = param;
+    this.pageRank = pageRank;
   }
 
   public Text getFollowee() {
@@ -51,28 +56,41 @@ public class Attribute implements Writable {
     return getFollowing().size();
   }
 
-  public double getPageRank() {
-    return pageRank.get();
+  public String getPageRank() {
+    return pageRank.toString();
   }
 
   public void setPageRank(double pageRank) {
-    this.pageRank = new DoubleWritable(pageRank);
+    this.pageRank = new Text(pageRank + "");
   }
 
   @Override
   public void write(DataOutput dataOutput) throws IOException {
-    followee.write(dataOutput);
     pageRank.write(dataOutput);
+    followee.write(dataOutput);
   }
 
   @Override
   public void readFields(DataInput dataInput) throws IOException {
-    followee.readFields(dataInput);
     pageRank.readFields(dataInput);
+    followee.readFields(dataInput);
   }
 
   @Override
   public String toString() {
-    return followee.toString() + "\t" + pageRank.get();
+    if (followee.getLength() == 0) {
+      followee = new Text(",");
+    }
+    return pageRank.toString() + "\t" + followee.toString();
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + followee.hashCode();
+    result = prime * result + pageRank.hashCode();
+    return result;
+  }
+
 }

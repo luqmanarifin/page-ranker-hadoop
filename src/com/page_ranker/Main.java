@@ -8,10 +8,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 public class Main {
   private static final int ITERATION = 3;
   private static final String PREFIX = "[luqman ganteng] ";
@@ -51,7 +47,7 @@ public class Main {
     job.setOutputKeyClass(LongWritable.class);
     job.setOutputValueClass(Attribute.class);
 
-    String inputPath = getRootDirectory() + "user/luqman/dummy"; //"user/twitter";
+    String inputPath = getRootDirectory() + "user/luqman/dummy2"; //"user/twitter";
     String outputPath = getMyDirectory() + "/iteration0/output";
     System.out.println("twitter path: " + inputPath);
     System.out.println("output path: " + outputPath);
@@ -74,6 +70,7 @@ public class Main {
     String outputPath = getMyDirectory() + "/iteration" + (iteration) + "/output";
     FileInputFormat.addInputPath(job, new Path(inputPath));
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
+    job.setNumReduceTasks(1);
 
     job.waitForCompletion(true);
   }
@@ -83,9 +80,13 @@ public class Main {
   }
 
   public static void main(String[] args) throws Exception {
+    double sum = 0;
+    double ans = 0.15 + 0.85 * sum;
+    System.out.println(ans);
     cleanUp();
     init();
-    for (int i = 1; i <= ITERATION; i++) {
+
+    for (int i = 1; i <= 1; i++) {
       iterate(i);
     }
     /*
