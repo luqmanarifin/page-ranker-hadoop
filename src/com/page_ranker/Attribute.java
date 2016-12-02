@@ -17,25 +17,25 @@ import java.util.List;
 public class Attribute implements Writable {
 
   private Text followee;
-  private Text pageRank;
+  private DoubleWritable pageRank;
 
   public Attribute() {
     followee = new Text();
-    pageRank = new Text();
+    pageRank = new DoubleWritable(0);
   }
 
   public Attribute(String param, double pageRank) {
     this.followee = new Text(param);
-    this.pageRank = new Text(pageRank + "");
+    this.pageRank = new DoubleWritable(pageRank);
   }
 
-  public Attribute(Text param, Text pageRank) {
+  public Attribute(Text param, DoubleWritable pageRank) {
     this.followee = param;
     this.pageRank = pageRank;
   }
 
   public Text getFollowee() {
-    return followee;
+    return new Text(followee);
   }
 
   public List<LongWritable> getFollowing() {
@@ -56,12 +56,12 @@ public class Attribute implements Writable {
     return getFollowing().size();
   }
 
-  public String getPageRank() {
-    return pageRank.toString();
+  public double getPageRank() {
+    return pageRank.get();
   }
 
   public void setPageRank(double pageRank) {
-    this.pageRank = new Text(pageRank + "");
+    this.pageRank = new DoubleWritable(pageRank);
   }
 
   @Override
@@ -81,7 +81,7 @@ public class Attribute implements Writable {
     if (followee.getLength() == 0) {
       followee = new Text(",");
     }
-    return pageRank.toString() + "\t" + followee.toString();
+    return pageRank.get() + "\t" + followee.toString();
   }
 
   @Override

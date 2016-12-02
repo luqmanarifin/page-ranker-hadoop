@@ -23,7 +23,7 @@ public class IterateReducer extends Reducer<LongWritable, Attribute, LongWritabl
         String add = followees.get(i).get() + ",";
         text.append(add.getBytes(), 0, add.length());
       }
-      sum += Double.parseDouble(attribute.getPageRank());
+      sum += attribute.getPageRank();
     }
     Attribute attribute1 = new Attribute(text.toString(), 0.15 + 0.85 * sum);
     context.write(new LongWritable(key.get()), attribute1);

@@ -47,7 +47,7 @@ public class Main {
     job.setOutputKeyClass(LongWritable.class);
     job.setOutputValueClass(Attribute.class);
 
-    String inputPath = getRootDirectory() + "user/luqman/dummy2"; //"user/twitter";
+    String inputPath = getRootDirectory() + "user/luqman/dummy"; //"user/twitter";
     String outputPath = getMyDirectory() + "/iteration0/output";
     System.out.println("twitter path: " + inputPath);
     System.out.println("output path: " + outputPath);
@@ -70,13 +70,25 @@ public class Main {
     String outputPath = getMyDirectory() + "/iteration" + (iteration) + "/output";
     FileInputFormat.addInputPath(job, new Path(inputPath));
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
-    job.setNumReduceTasks(1);
 
     job.waitForCompletion(true);
   }
 
-  public static void finish() {
+  public static void finish() throws Exception {
+    Job job = Job.getInstance(conf, PREFIX + "finishing ");
+    job.setJarByClass(Main.class);
+    job.setMapperClass(IterateMapper.class);
+    job.setCombinerClass(IterateReducer.class);
+    job.setReducerClass(IterateReducer.class);
+    job.setOutputKeyClass(LongWritable.class);
+    job.setOutputValueClass(Attribute.class);
 
+    String inputPath = getMyDirectory() + "/iteration" + ITERATION + "/output";
+    String outputPath = getMyDirectory() + "/result";
+    FileInputFormat.addInputPath(job, new Path(inputPath));
+    FileOutputFormat.setOutputPath(job, new Path(outputPath));
+
+    job.waitForCompletion(true);
   }
 
   public static void main(String[] args) throws Exception {
@@ -86,11 +98,9 @@ public class Main {
     cleanUp();
     init();
 
-    for (int i = 1; i <= 1; i++) {
+    for (int i = 1; i <= ITERATION; i++) {
       iterate(i);
     }
-    /*
     finish();
-    */
   }
 }
