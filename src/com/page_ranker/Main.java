@@ -10,6 +10,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Main {
   private static final int ITERATION = 3;
+  private static final int REDUCER = 122;
   private static final String PREFIX = "[luqman ganteng] ";
 
   private static Configuration conf = new Configuration();
@@ -52,7 +53,7 @@ public class Main {
     System.out.println("output path: " + outputPath);
     FileInputFormat.addInputPath(job, new Path(inputPath));
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
-    job.setNumReduceTasks(8);
+    job.setNumReduceTasks(REDUCER);
 
     job.waitForCompletion(true);
   }
@@ -69,7 +70,7 @@ public class Main {
     String outputPath = getMyDirectory() + "/iteration" + (iteration) + "/output";
     FileInputFormat.addInputPath(job, new Path(inputPath));
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
-    job.setNumReduceTasks(8);
+    job.setNumReduceTasks(REDUCER);
 
     job.waitForCompletion(true);
   }
@@ -86,7 +87,7 @@ public class Main {
     String outputPath = getMyDirectory() + "/result";
     FileInputFormat.addInputPath(job, new Path(inputPath));
     FileOutputFormat.setOutputPath(job, new Path(outputPath));
-    job.setNumReduceTasks(8);
+    job.setNumReduceTasks(REDUCER);
 
     job.waitForCompletion(true);
   }
